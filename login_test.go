@@ -2,8 +2,8 @@ package sessionauth
 
 import (
 	"github.com/codegangsta/martini"
-	"github.com/codegangsta/martini-contrib/render"
-	"github.com/codegangsta/martini-contrib/sessions"
+	"github.com/martini-contrib/render"
+	"github.com/martini-contrib/sessions"
 	"net/http"
 	"net/http/httptest"
 	"testing"
