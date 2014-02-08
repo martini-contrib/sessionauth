@@ -1,4 +1,4 @@
-# martini-login
+# sessionauth
 
 ## Purpose
 
