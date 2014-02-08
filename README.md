@@ -1,4 +1,4 @@
-# sessionauth
+# sessionauth [![wercker status](https://app.wercker.com/status/2ca96622162f80499f954e2c8a2e44a1 "wercker status")](https://app.wercker.com/project/bykey/2ca96622162f80499f954e2c8a2e44a1)
 
 ## Purpose
 
