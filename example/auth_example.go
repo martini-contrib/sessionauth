@@ -52,6 +52,12 @@ func main() {
 
 	m := martini.Classic()
 	m.Use(render.Renderer())
+
+	// Default our store to use Session cookies, so we don't leave logged in
+	// users roaming around
+	store.Options(sessions.Options{
+		MaxAge: 0,
+	})
 	m.Use(sessions.Sessions("my_session", store))
 	m.Use(sessionauth.SessionUser(GenerateAnonymousUser))
 	sessionauth.RedirectUrl = "/new-login"
