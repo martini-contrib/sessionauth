@@ -38,10 +38,10 @@ Your user type should meet the login.User interface:
         Logout()
 
         // Return the unique identifier of this user object
-        UniqueId() interface{}
+        UniqueID() interface{}
 
         // Populate this user object with values
-        GetById(id interface{}) error
+        GetByID(id interface{}) error
    }
 ```
 
