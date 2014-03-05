@@ -10,7 +10,7 @@ import (
 )
 
 type TestUser struct {
-	Id            int    `json:"id"`
+	ID            int    `json:"id"`
 	Name          string `json:"name"`
 	Age           int    `json:"age"`
 	authenticated bool   `json:"-"`
@@ -28,12 +28,12 @@ func (u *TestUser) Logout() {
 	u.authenticated = false
 }
 
-func (u *TestUser) UniqueId() interface{} {
-	return u.Id
+func (u *TestUser) UniqueID() interface{} {
+	return u.ID
 }
 
-func (u *TestUser) GetById(id interface{}) error {
-	u.Id = id.(int)
+func (u *TestUser) GetByID(id interface{}) error {
+	u.ID = id.(int)
 	u.Name = "My Test User"
 	u.Age = 42
 

@@ -6,11 +6,11 @@ package main
 import (
 	"database/sql"
 	"github.com/codegangsta/martini"
+	"github.com/coopernurse/gorp"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
 	"github.com/martini-contrib/sessionauth"
 	"github.com/martini-contrib/sessions"
-	"github.com/coopernurse/gorp"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
@@ -32,7 +32,7 @@ func initDb() *gorp.DbMap {
 	}
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
-	dbmap.AddTableWithName(MyUserModel{}, "users").SetKeys(true, "Id")
+	dbmap.AddTableWithName(MyUserModel{}, "users").SetKeys(true, "ID")
 	err = dbmap.CreateTablesIfNotExists()
 	if err != nil {
 		log.Fatalln("Could not build tables", err)
@@ -60,7 +60,7 @@ func main() {
 	})
 	m.Use(sessions.Sessions("my_session", store))
 	m.Use(sessionauth.SessionUser(GenerateAnonymousUser))
-	sessionauth.RedirectUrl = "/new-login"
+	sessionauth.RedirectURL = "/new-login"
 	sessionauth.RedirectParam = "new-next"
 
 	m.Get("/", func(r render.Render) {
@@ -77,7 +77,7 @@ func main() {
 		user := MyUserModel{}
 		err := dbmap.SelectOne(&user, "SELECT * FROM users WHERE username = $1 and password = $2", postedUser.Username, postedUser.Password)
 		if err != nil {
-			r.Redirect(sessionauth.RedirectUrl)
+			r.Redirect(sessionauth.RedirectURL)
 			return
 		} else {
 			err := sessionauth.AuthenticateSession(session, &user)
