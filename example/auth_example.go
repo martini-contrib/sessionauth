@@ -5,12 +5,12 @@ package main
 
 import (
 	"database/sql"
-	"github.com/codegangsta/martini"
+	"github.com/coopernurse/gorp"
+	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
 	"github.com/martini-contrib/sessionauth"
 	"github.com/martini-contrib/sessions"
-	"github.com/coopernurse/gorp"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
