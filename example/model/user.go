@@ -1,4 +1,4 @@
-package main
+package model
 
 import (
 	"github.com/martini-contrib/sessionauth"
@@ -41,15 +41,4 @@ func (u *MyUserModel) IsAuthenticated() bool {
 
 func (u *MyUserModel) UniqueId() interface{} {
 	return u.Id
-}
-
-// GetById will populate a user object from a database model with
-// a matching id.
-func (u *MyUserModel) GetById(id interface{}) error {
-	err := dbmap.SelectOne(u, "SELECT * FROM users WHERE id = $1", id)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

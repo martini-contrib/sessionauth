@@ -42,10 +42,12 @@ type User interface {
 
 	// Return the unique identifier of this user object
 	UniqueId() interface{}
-
-	// Populate this user object with values
-	GetById(id interface{}) error
 }
+
+// Retriever is the function responsible for getting a user from the database
+// based on its id or something else
+
+type UserRetriever func(id interface{}, user *User) error
 
 // SessionUser will try to read a unique user ID out of the session. Then it tries
 // to populate an anonymous user object from the database based on that ID. If this
@@ -53,13 +55,17 @@ type User interface {
 // user is mapped into the contact.
 // The newUser() function should provide a valid 0value structure for the caller's
 // user type.
-func SessionUser(newUser func() User) martini.Handler {
+func SessionUser(newUser func() User, userRetriever UserRetriever) martini.Handler {
 	return func(s sessions.Session, c martini.Context, l *log.Logger) {
+		if userRetriever == nil {
+			panic("Login error: No retriever set")
+		}
+
 		userId := s.Get(SessionKey)
 		user := newUser()
 
 		if userId != nil {
-			err := user.GetById(userId)
+			err := userRetriever(userId, &user)
 			if err != nil {
 				l.Printf("Login Error: %v\n", err)
 			} else {
