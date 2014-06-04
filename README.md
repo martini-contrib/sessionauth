@@ -39,18 +39,22 @@ Your user type should meet the login.User interface:
 
         // Return the unique identifier of this user object
         UniqueId() interface{}
-
-        // Populate this user object with values
-        GetById(id interface{}) error
    }
 ```
+
+There must be a function to retrieve the user from the database, with the following type:
+
+```go
+    type UserRetriever func(id interface{}) (User, error)
+```
+
 
 The SessionUser() Martini middleware will inject the login.User interface
 into your route handlers. These interfaces must be converted to your
 appropriate type to function correctly.
 
 ```go
-    func handler(user login.User, db *MyDB) {
+    func handler(user sessionauth.User, db *MyDB) {
         u := user.(*UserModel)
         db.Save(u)
     }

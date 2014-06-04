@@ -5,11 +5,12 @@ package main
 
 import (
 	"database/sql"
+	"github.com/martini-contrib/sessionauth"
+	"github.com/martini-contrib/sessionauth/example/model"
 	"github.com/coopernurse/gorp"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
-	"github.com/martini-contrib/sessionauth"
 	"github.com/martini-contrib/sessions"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
@@ -32,13 +33,13 @@ func initDb() *gorp.DbMap {
 	}
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
-	dbmap.AddTableWithName(MyUserModel{}, "users").SetKeys(true, "Id")
+	dbmap.AddTableWithName(model.MyUserModel{}, "users").SetKeys(true, "Id")
 	err = dbmap.CreateTablesIfNotExists()
 	if err != nil {
 		log.Fatalln("Could not build tables", err)
 	}
 
-	user := MyUserModel{1, "testuser", "password", false}
+	user := model.MyUserModel{Id: 1, Username: "testuser", Password: "password"}
 	err = dbmap.Insert(&user)
 	if err != nil {
 		log.Fatalln("Could not insert test user", err)
@@ -59,7 +60,7 @@ func main() {
 		MaxAge: 0,
 	})
 	m.Use(sessions.Sessions("my_session", store))
-	m.Use(sessionauth.SessionUser(GenerateAnonymousUser))
+	m.Use(sessionauth.SessionUser(model.GenerateAnonymousUser, generateUserRetriever(dbmap)))
 	sessionauth.RedirectUrl = "/new-login"
 	sessionauth.RedirectParam = "new-next"
 
@@ -71,10 +72,10 @@ func main() {
 		r.HTML(200, "login", nil)
 	})
 
-	m.Post("/new-login", binding.Bind(MyUserModel{}), func(session sessions.Session, postedUser MyUserModel, r render.Render, req *http.Request) {
+	m.Post("/new-login", binding.Bind(model.MyUserModel{}), func(session sessions.Session, postedUser model.MyUserModel, r render.Render, req *http.Request) {
 		// You should verify credentials against a database or some other mechanism at this point.
 		// Then you can authenticate this session.
-		user := MyUserModel{}
+		user := model.MyUserModel{}
 		err := dbmap.SelectOne(&user, "SELECT * FROM users WHERE username = $1 and password = $2", postedUser.Username, postedUser.Password)
 		if err != nil {
 			r.Redirect(sessionauth.RedirectUrl)
@@ -93,7 +94,7 @@ func main() {
 	})
 
 	m.Get("/private", sessionauth.LoginRequired, func(r render.Render, user sessionauth.User) {
-		r.HTML(200, "private", user.(*MyUserModel))
+		r.HTML(200, "private", user.(*model.MyUserModel))
 	})
 
 	m.Get("/logout", sessionauth.LoginRequired, func(session sessions.Session, user sessionauth.User, r render.Render) {
@@ -102,4 +103,16 @@ func main() {
 	})
 
 	m.Run()
+}
+
+func generateUserRetriever(dbmap *gorp.DbMap) sessionauth.UserRetriever {
+	return func(id interface{}, user *sessionauth.User) error {
+		err := dbmap.SelectOne(user, "SELECT * FROM users WHERE id = $1", id)
+		if err != nil {
+			log.Println("select one:", err)
+			return err
+		}
+
+		return nil
+	}
 }
