@@ -5,6 +5,11 @@ package main
 
 import (
 	"database/sql"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+
 	"github.com/coopernurse/gorp"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
@@ -12,9 +17,6 @@ import (
 	"github.com/martini-contrib/sessionauth"
 	"github.com/martini-contrib/sessions"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
-	"net/http"
-	"os"
 )
 
 var dbmap *gorp.DbMap
@@ -84,9 +86,12 @@ func main() {
 			if err != nil {
 				r.JSON(500, err)
 			}
-
-			params := req.URL.Query()
-			redirect := params.Get(sessionauth.RedirectParam)
+			referer := req.Referer()
+			refParsed, err := url.Parse(referer)
+			if err != nil {
+				log.Print(err)
+			}
+			redirect := refParsed.Get(sessionauth.RedirectParam)
 			r.Redirect(redirect)
 			return
 		}
