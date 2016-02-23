@@ -23,6 +23,9 @@ var (
 	// intercepted.
 	RedirectParam string = "next"
 
+	//RefirectBase if true, ignore RedirectParam in LoginRequired
+	RedirectBase bool = false
+
 	// SessionKey is the key containing the unique ID in your session
 	SessionKey string = "AUTHUNIQUEID"
 )
@@ -91,7 +94,12 @@ func Logout(s sessions.Session, user User) {
 // set to the attempted URL.
 func LoginRequired(r render.Render, user User, req *http.Request) {
 	if user.IsAuthenticated() == false {
-		path := fmt.Sprintf("%s?%s=%s", RedirectUrl, RedirectParam, req.URL.Path)
+		var path string
+		if RedirectBase {
+			path = RedirectUrl
+		} else {
+			path = fmt.Sprintf("%s?%s=%s", RedirectUrl, RedirectParam, req.URL.Path)
+		}
 		r.Redirect(path, 302)
 	}
 }
