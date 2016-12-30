@@ -62,7 +62,7 @@ func SessionUser(newUser func() User) martini.Handler {
 			err := user.GetById(userId)
 			if err != nil {
 				l.Printf("Login Error: %v\n", err)
-			} else {
+			} else if !s.IsNew() {
 				user.Login()
 			}
 		}
